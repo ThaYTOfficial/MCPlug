@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCPlugs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+transition-duration: 150ms; 
+            margin: 0;
+            padding: 0;
+            background-color: #16181c;
+        }
+
+
+        header {
+            background-color: #333;
+            color: #b0bac5;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .plugin-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1rem;
+            color: #b0bac5;
+            
+        }
+
+        .plugin {
+            background: #26292f;
+            border: 1px solid #26292f;
+            border-radius: 25px;
+            margin: 10px;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            
+        }
+
+        .plugin h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .plugin p {
+            font-size: 0.9rem;
+            color: #b0bac5;;
+        }
+
+        .plugin .a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #b0bac5;
+            text-decoration: none;
+            border-radius: 3px;
+        }
+
+        .plugin .a:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+            box-shadow: ;
+        }
+        .plugin:hover {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+transition-duration: 150ms; 
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(255, 255, 255, 0.61);
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination button {
+            padding: 10px 15px;
+            margin: 0 5px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .pagination button:hover {
+            background-color: #0056b3;
+        }
+
+        .pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>MCPlugs - Your Plugin Library</h1>
+    </header>
+    <div class="plugin-container" id="pluginContainer">
+        <div class="loading" id="loading">Loading plugins...
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><radialGradient id="a12" cx=".66" fx=".66" cy=".3125" fy=".3125" gradientTransform="scale(1.5)"><stop offset="0" stop-color="#FF156D"></stop><stop offset=".3" stop-color="#FF156D" stop-opacity=".9"></stop><stop offset=".6" stop-color="#FF156D" stop-opacity=".6"></stop><stop offset=".8" stop-color="#FF156D" stop-opacity=".3"></stop><stop offset="1" stop-color="#FF156D" stop-opacity="0"></stop></radialGradient><circle transform-origin="center" fill="none" stroke="url(#a12)" stroke-width="15" stroke-linecap="round" stroke-dasharray="200 1000" stroke-dashoffset="0" cx="100" cy="100" r="70"><animateTransform type="rotate" attributeName="transform" calcMode="spline" dur="2" values="360;0" keyTimes="0;1" keySplines="0 0 1 1" repeatCount="indefinite"></animateTransform></circle><circle transform-origin="center" fill="none" opacity=".2" stroke="#FF156D" stroke-width="15" stroke-linecap="round" cx="100" cy="100" r="70"></circle></svg>
+        </div>
+    </div>
+    <div class="pagination" id="pagination">
+<button id="loadMore" class="relative px-4 py-2 overflow-hidden font-medium duration-300 border border-b-4 rounded-md outline-none bg-lime-950 text-lime-400 border-lime-400 hover:brightness-150 hover:border-t-4 hover:border-b active:opacity-75 group">
+  <span class="bg-lime-400 shadow-lime-400 absolute -top-[150%] left-0 inline-flex w-80 h-[5px] rounded-md opacity-50 group-hover:top-[150%] duration-500 shadow-[0_0_10px_10px_rgba(0,0,0,0.3)]"></span>
+  Load More
+</button>
+    </div>
+    <footer class="py-4">
+        <div class="container px-4 mx-auto font-sans text-sm text-center text-gray-400">
+            <span>© 2024 - 2025 CLYRA, Inc.</span>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = "https://api.spiget.org/v2/resources/free";
+        const ITEMS_PER_PAGE = 50;
+        let currentPage = 1;
+
+        async function fetchPlugins(page = 1) {
+            const container = document.getElementById("pluginContainer");
+            const loading = document.getElementById("loading");
+            const loadMoreButton = document.getElementById("loadMore");
+
+            loading.style.display = "block";
+
+            try {
+                const response = await fetch(`${API_URL}?size=${ITEMS_PER_PAGE}&page=${page}&sort=-downloads`);
+                if (!response.ok) {
+                    throw new Error("Failed to fetch plugins.");
+                }
+
+                const plugins = await response.json();
+                loading.style.display = "none";
+
+                plugins.forEach(plugin => {
+                    const pluginDiv = document.createElement("div");
+                    pluginDiv.classList.add("plugin");
+
+                    pluginDiv.innerHTML = `
+                        <div class="flex items-center mb-4">
+                            <img src="data:image/jpeg;base64,${plugin.icon.data}" alt="${plugin.name}" class="w-12 h-12 mr-4 rounded-lg">
+                            <div>
+                                <h3 class="text-lg font-semibold" truncate><a href="https://spigotmc.org/resources/${plugin.id}"> ${plugin.name}</a></h3>
+                                <p class="text-sm text-gray-400">⭐ ${plugin.rating.average} stars rating</p>
+                                </div>
+                                </div>
+                                <p class="flex-grow mb-4 text-sm">${plugin.tag || 'No description available.'}</p>
+            
+                                <div class="flex items-center justify-between mt-auto">
+                                    <span class="text-xs text-gray-400">${plugin.downloads.toLocaleString()} downloads</span>
+                                    
+                                    <a target="_blank" href="https://spigotmc.org/resources/${plugin.id}" ><button class=" bg-indigo-500 hover:bg-indigo-700 hover:scale-95 text-white text-sm py-1.5 px-3 rounded-lg transition">Visit</button></a>
+                                    <a href="https://api.spiget.org/v2/resources/${plugin.id}/download" ><button class=" bg-indigo-500 hover:bg-indigo-700 hover:scale-95 text-white text-sm py-1.5 px-3 rounded-lg transition">Download</button></a>
+                                </div>
+                    `;
+
+                    container.appendChild(pluginDiv);
+                });
+
+                // Hide the load more button if no more plugins are available
+                if (plugins.length < ITEMS_PER_PAGE) {
+                    loadMoreButton.style.display = "none";
+                }
+            } catch (error) {
+                console.error(error);
+                loading.innerText = "Error loading plugins. Please try again later.";
+            }
+        }
+
+        document.getElementById("loadMore").addEventListener("click", () => {
+            currentPage++;
+            fetchPlugins(currentPage);
+        });
+
+        fetchPlugins(currentPage);
+    </script>
+</body>
+</html>
